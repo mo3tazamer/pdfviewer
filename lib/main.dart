@@ -1,9 +1,13 @@
 import 'dart:io';
 
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:file_manager/file_manager.dart';
-import 'package:file_manager/utils/extensions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:pdfviewer/pdfPlayer.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'getacsess.dart';
 
 void main() => runApp(const MyApp());
 
@@ -14,14 +18,35 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-
 class _MyAppState extends State<MyApp> {
+    PermissionStatus status =PermissionStatus.denied;
+
+  // Future<void> requestPermission(Permission permission) async {
+  //   status = await permission.request();
+  //   if (status.isGranted) {
+  //
+  //
+  //
+  //
+  //     print('ok');
+  //   } else {
+  //
+  //
+  //     print('object');
+  //   }
+  // }
+
   @override
   void initState() {
+    //requestPermission(Permission.storage);
 
-     //FileManager.requestFilesAccessPermission();
     super.initState();
+
   }
+  @override
+
+@override
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,13 +54,13 @@ class _MyAppState extends State<MyApp> {
       themeMode: ThemeMode.dark,
       theme: ThemeData(useMaterial3: true),
       darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
-      home: HomePage(),
+      home: GetAcsess(),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -43,127 +68,118 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final FileManagerController controller = FileManagerController();
+  @override
+  void didUpdateWidget(covariant HomePage oldWidget) {
+
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ControlBackButton(
-      controller: controller,
-      child: Scaffold(
-        appBar: appBar(context),
-        body: FileManager(
-          loadingScreen: const Center(child: CircularProgressIndicator()),
-          controller: controller,
-          builder: (context, snapshot) {
-            final List<FileSystemEntity> entities = snapshot;
+        controller: controller,
+        child: Scaffold(
+          appBar: appBar(context),
+          body: FileManager(
 
-            // List<FileSystemEntity?>   getpdf(){
-            //
-            //     // FileManager.getFileExtension(entities.last);
-            //
-            //       if( FileManager.basename(entities.last,showFileExtension: true) == 'pdf'){
-            //         return  entities;
-            //
-            //
-            //       }else{
-            //         return entities;
-            //       }
-            //
-            //
-            //
-            //   };
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
-              itemCount: entities.length,
-              itemBuilder: (context, index) {
-                FileSystemEntity? entity = entities[index];
+            controller: controller,
+            builder: (context, snapshot) {
+              final List<FileSystemEntity> entities = snapshot;
 
-                return Card(
-                  child: ListTile(
-                    leading: FileManager.isFile(entity)
-                        ? const Icon(Icons.feed_outlined)
-                        : const Icon(Icons.folder),
-                    title: Text(FileManager.basename(
-                      entity,
-                      showFileExtension: true,
-                    )),
-                    subtitle: subtitle(entity),
-                    onTap: () async {
-                      if (FileManager.isDirectory(entity)) {
-                        // open the folder
-                        controller.openDirectory(entity);
 
-                        // delete a folder
-                        // await entity.delete(recursive: true);
+              return ConditionalBuilder(
+                  condition:entities.isNotEmpty   ,
 
-                        // rename a folder
-                        //await entity.rename("newPath");
+                  builder:(context)=>ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                itemCount: entities.length,
+                itemBuilder: (context, index) {
+                  FileSystemEntity? entity = entities[index];
 
-                        // Check weather folder exists
-                        // entity.exists();
+                  return Card(
+                    child: ListTile(
+                      leading: FileManager.isFile(entity)
+                          ? const Icon(Icons.feed_outlined)
+                          : const Icon(Icons.folder),
+                      title: Text(FileManager.basename(
+                        entity,
+                        showFileExtension: true,
+                      )),
+                      subtitle: subtitle(entity),
+                      onTap: () async {
+                        if (FileManager.isDirectory(entity)) {
+                          // open the folder
+                          controller.openDirectory(entity);
 
-                        // get date of file
-                        // DateTime date = (await entity.stat()).modified;
-                      } else {
-                        File? file = File(entity.path);
-                        String pdf = entity.path;
+                          // delete a folder
+                          // await entity.delete(recursive: true);
 
-                        pdf.endsWith('pdf');
+                          // rename a folder
+                          //await entity.rename("newPath");
 
-                        if (pdf.endsWith('pdf')) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PdfPlayer(
-                                  file: file,
-                                ),
-                              ));
+                          // Check weather folder exists
+                          // entity.exists();
+
+                          // get date of file
+                          // DateTime date = (await entity.stat()).modified;
                         } else {
-                          showWarningDialog(context);
-                          print('file not supported');
+                          File? file = File(entity.path);
+                          String pdf = entity.path;
+
+                          pdf.endsWith('pdf');
+
+                          if (pdf.endsWith('pdf')) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PdfPlayer(
+                                    file: file,
+                                  ),
+                                ));
+                          } else {
+                            showWarningDialog(context);
+                            print('file not supported');
+                          }
+
+                          // delete a file
+                          //await entity.delete();
+
+                          // rename a file
+                          // await entity.rename("newPath");
+
+                          // Check weather file exists
+                          // entity.exists();
+
+                          // get date of file
+                          // DateTime date = (await entity.stat()).modified;
+
+                          // get the size of the file
+                          //int size = (await entity.stat()).size;
                         }
+                      },
+                    ),
+                  );
+                },
+              ) ,
+                  fallback:(context)=> const Center(child: CircularProgressIndicator()) ,
 
-                        // delete a file
-                        //await entity.delete();
-
-                        // rename a file
-                        // await entity.rename("newPath");
-
-                        // Check weather file exists
-                        // entity.exists();
-
-                        // get date of file
-                        // DateTime date = (await entity.stat()).modified;
-
-                        // get the size of the file
-                        //int size = (await entity.stat()).size;
-                      }
-                    },
-                  ),
-                );
-              },
-            );
-          },
-        ),
-        //  floatingActionButton: FloatingActionButton.extended(
-        //
-        //   onPressed: () async {
-        //     setState(() {
-        //
-        //     });
-        //     FileManager.requestFilesAccessPermission();
-        //
-        //
-        //   },
-        //   label: const Text("Request File Access Permission"),
-        // )
-      ),
-    );
+              );
+            },
+          ),
+          // floatingActionButton: FloatingActionButton.extended(
+          //   onPressed: () async {
+          //     setState(() {
+          //             
+          //     });
+          //   },
+          //   label: const Text("Request File Access Permission"),
+          // ),),
+        ));
   }
 
   AppBar appBar(BuildContext context) {
     return AppBar(
       actions: [
-
         IconButton(
           onPressed: () => sort(context),
           icon: const Icon(Icons.sort_rounded),
@@ -173,7 +189,6 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.sd_storage_rounded),
         )
       ],
-
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () async {
@@ -324,16 +339,21 @@ class _HomePageState extends State<HomePage> {
     showDialog(
         context: context,
         builder: (context) {
-
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
                 title: const Text("file not supported"),
-                content: const Icon(Icons.warning_amber_outlined, size: 35,),
+                content: const Icon(
+                  Icons.warning_amber_outlined,
+                  size: 35,
+                ),
                 actions: <Widget>[
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("ok",style: TextStyle(fontSize: 20),),
+                    child: const Text(
+                      "ok",
+                      style: TextStyle(fontSize: 20),
+                    ),
                   ),
                 ],
               );
