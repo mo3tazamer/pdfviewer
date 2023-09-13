@@ -54,7 +54,7 @@ class _MyAppState extends State<MyApp> {
       themeMode: ThemeMode.dark,
       theme: ThemeData(useMaterial3: true),
       darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
-      home: GetAcsess(),
+      home: const GetAcsess(),
     );
   }
 }

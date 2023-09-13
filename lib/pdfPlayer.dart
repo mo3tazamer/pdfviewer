@@ -12,49 +12,64 @@ class PdfPlayer extends StatefulWidget {
 
 class _PdfPlayerState extends State<PdfPlayer> {
   late PdfViewerController pdfViewerController;
-  int x = 1;
+  int pageNumber = 1;
+  int pageCount = 0;
   @override
   void initState() {
     pdfViewerController = PdfViewerController();
-
+    pageCount = pdfViewerController.pageCount;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
+    pageCount = pdfViewerController.pageCount;
 
     return Scaffold(
-
       extendBody: true,
       appBar: AppBar(
         actions: [
           IconButton(
               onPressed: () {
-                pdfViewerController.previousPage();
                 setState(() {
-                 x=pdfViewerController.pageNumber;
-
-
-
+                  pdfViewerController.previousPage();
+                  pageNumber = pdfViewerController.pageNumber;
                 });
               },
-              icon: const Icon(Icons.navigate_before,size: 35,)),
-          Text('$x/${pdfViewerController.pageCount}',style: const TextStyle(fontSize: 20),),
+              icon: const Icon(
+                Icons.navigate_before,
+                size: 35,
+              )),
+          Text(
+            '$pageNumber/$pageCount',
+            style: const TextStyle(fontSize: 20),
+          ),
           IconButton(
               onPressed: () {
-                pdfViewerController.nextPage();
                 setState(() {
-                  x= pdfViewerController.pageNumber;
+                  pdfViewerController.nextPage();
+                  pageNumber = pdfViewerController.pageNumber;
                 });
               },
-              icon: const Icon(Icons.navigate_next_sharp,size: 35,)),
+              icon: const Icon(
+                Icons.navigate_next_sharp,
+                size: 35,
+              )),
         ],
       ),
       body: Center(
         heightFactor: double.maxFinite,
         widthFactor: double.maxFinite,
         child: SfPdfViewer.file(
+          onDocumentLoaded: (details) {
+            pageCount = pdfViewerController.pageCount;
+            pageNumber = pdfViewerController.pageNumber;
+            setState(() {});
+          },
+          onPageChanged: (details) {
+            setState(() {});
+            pageNumber = details.newPageNumber;
+          },
           widget.file,
           canShowPaginationDialog: false,
           canShowHyperlinkDialog: true,
