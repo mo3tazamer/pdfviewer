@@ -12,12 +12,12 @@ class PdfPlayer extends StatefulWidget {
 
 class _PdfPlayerState extends State<PdfPlayer> {
   late PdfViewerController pdfViewerController;
-  int pageNumber = 1;
+  int pageNumber = 0;
   int pageCount = 0;
   @override
   void initState() {
     pdfViewerController = PdfViewerController();
-    pageCount = pdfViewerController.pageCount;
+
     super.initState();
   }
 
